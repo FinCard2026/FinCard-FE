@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import PhoneFrame from '../components/ui/PhoneFrame';
 import PrimaryBtn from '../components/ui/PrimaryBtn';
 import { Api } from '../lib/api';
+import { useApp } from '../context/AppContext';
 
 function EyeIcon({ open }: { open: boolean }) {
   return open ? (
@@ -56,6 +57,7 @@ function Field({
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const { setNickname: saveNickname } = useApp();
 
   const [username, setUsername] = useState('');
   const [nickname, setNickname] = useState('');
@@ -85,6 +87,7 @@ export default function SignupPage() {
     setLoading(true); setError('');
     try {
       await Api.signup({ email, password });
+      saveNickname(nickname);
       navigate('/onboarding', { replace: true });
     } catch {
       setError('회원가입에 실패했어요. 다시 시도해주세요.');

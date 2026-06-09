@@ -46,11 +46,13 @@ function SectionHead({ title, action, onAction }: { title: string; action?: stri
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { profile, points, sorted, scores, policies, tweaks, quizDone, setQuizDone, addPoints, toast, showToast } = useApp();
+  const { profile, nickname, points, sorted, matched, scores, policies, tweaks, quizDone, toast } = useApp();
   const [quizLoading, setQuizLoading] = useState(false);
 
-  const sumAmt = policies.reduce((a, p) => a + (p.amount || 0), 0);
+  // score 80 이상 정책만 "지원 가능"으로 집계
+  const sumAmt = matched.reduce((a, p) => a + (p.amount || 0), 0);
   const top3 = sorted.slice(0, 3);
+  const displayName = nickname || '회원';
   const cl = inferCluster(profile);
   const cmp = profileCompleteness(profile);
   const comp = cmp.score;
@@ -78,7 +80,7 @@ export default function HomePage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 10px' }}>
           <div>
             <div style={{ fontSize: 13, color: 'var(--sub)', fontWeight: 600 }}>{profile.region ? profile.region + ' · ' : ''}{profile.job || '청년'}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.01em' }}>회원님, 안녕하세요 👋</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--ink)', letterSpacing: '-0.01em' }}>{displayName}님, 안녕하세요 👋</div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button onClick={() => navigate('/mypage')} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 999, padding: '6px 12px 6px 8px', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -128,10 +130,10 @@ export default function HomePage() {
           {/* policy count card */}
           {layout === 'stack' ? (
             <div style={{ background: 'linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%)', borderRadius: 22, padding: '20px 22px', color: '#fff', boxShadow: '0 18px 34px -18px var(--brand)', marginBottom: 14 }}>
-              <div style={{ fontSize: 13.5, opacity: 0.9, fontWeight: 600 }}>회원님이 지원받을 수 있는 정책</div>
+              <div style={{ fontSize: 13.5, opacity: 0.9, fontWeight: 600 }}>{displayName}님이 지원받을 수 있는 정책</div>
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 10 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
-                  <span style={{ fontSize: 46, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 }}>{policies.length}</span>
+                  <span style={{ fontSize: 46, fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1 }}>{matched.length}</span>
                   <span style={{ fontSize: 19, fontWeight: 700 }}>건</span>
                 </div>
                 <span style={{ fontSize: 12, opacity: 0.85, fontWeight: 600, marginBottom: 3 }}>맞춤 분석 완료</span>
@@ -148,7 +150,7 @@ export default function HomePage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
               <button onClick={() => navigate('/strategy')} style={statTile}>
                 <Shield size={22} />
-                <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--ink)', marginTop: 10, lineHeight: 1 }}>{policies.length}<span style={{ fontSize: 15, fontWeight: 700 }}> 건</span></div>
+                <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--ink)', marginTop: 10, lineHeight: 1 }}>{matched.length}<span style={{ fontSize: 15, fontWeight: 700 }}> 건</span></div>
                 <div style={{ fontSize: 12.5, color: 'var(--sub)', marginTop: 5, fontWeight: 600 }}>지원 가능한 정책</div>
               </button>
               <button onClick={() => navigate('/strategy')} style={{ ...statTile, background: 'var(--brand)', color: '#fff', border: 'none' }}>

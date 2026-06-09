@@ -23,6 +23,7 @@ const defaultProfile: Profile = {
 
 interface AppContextValue {
   profile: Profile;
+  nickname: string;
   points: number;
   history: PointHistory[];
   unlocked: Set<string>;
@@ -32,9 +33,11 @@ interface AppContextValue {
   policies: Policy[];
   scores: Record<string, number>;
   sorted: Policy[];
+  matched: Policy[];
   tweaks: TweakSettings;
   toast: { msg: string; good: boolean } | null;
   setProfile: (p: Profile) => void;
+  setNickname: (n: string) => void;
   setPolicies: (p: Policy[]) => void;
   setPoints: React.Dispatch<React.SetStateAction<number>>;
   setHistory: React.Dispatch<React.SetStateAction<PointHistory[]>>;
@@ -62,6 +65,7 @@ function scoreFor(pol: Policy, profile: Profile): number {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfileState] = useState<Profile>(defaultProfile);
+  const [nickname, setNicknameState] = useState('');
   const [points, setPoints] = useState(0);
   const [history, setHistory] = useState<PointHistory[]>([]);
   const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
@@ -72,14 +76,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [tweaks] = useState<TweakSettings>(TWEAK_DEFAULTS);
   const [toast, setToast] = useState<{ msg: string; good: boolean } | null>(null);
 
-  const { sorted, scores } = useMemo(() => {
+  const { sorted, scores, matched } = useMemo(() => {
     const sc: Record<string, number> = {};
     policies.forEach((p) => (sc[p.id] = p.score != null ? p.score : scoreFor(p, profile)));
     const s = [...policies].sort((a, b) => sc[b.id] - sc[a.id]);
-    return { sorted: s, scores: sc };
+    // 점수 80 이상만 "지원 가능"으로 카운트
+    const m = s.filter((p) => sc[p.id] >= 80);
+    return { sorted: s, scores: sc, matched: m };
   }, [policies, profile]);
 
   const setProfile = useCallback((p: Profile) => setProfileState(p), []);
+  const setNickname = useCallback((n: string) => setNicknameState(n), []);
   const setPolicies = useCallback((p: Policy[]) => setPoliciesState(p), []);
 
   const showToast = useCallback((msg: string, good = true) => {
@@ -126,9 +133,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      profile, points, history, unlocked, checklists, visited, quizDone,
-      policies, scores, sorted, tweaks, toast,
-      setProfile, setPolicies, setPoints, setHistory,
+      profile, nickname, points, history, unlocked, checklists, visited, quizDone,
+      policies, scores, sorted, matched, tweaks, toast,
+      setProfile, setNickname, setPolicies, setPoints, setHistory,
       setUnlocked, setChecklists, setVisited, setQuizDone,
       addPoints, showToast, tryUnlock, genChecklist, visitSite,
     }}>

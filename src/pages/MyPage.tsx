@@ -44,7 +44,7 @@ const moreBtn: React.CSSProperties = {
 
 export default function MyPage() {
   const navigate = useNavigate();
-  const { profile, points, history, sorted, unlocked, tweaks, setProfile, setPoints, setHistory, setUnlocked, setChecklists, setVisited, setQuizDone, toast } = useApp();
+  const { profile, nickname, points, history, sorted, unlocked, tweaks, setProfile, setNickname, setPoints, setHistory, setUnlocked, setChecklists, setVisited, setQuizDone, toast } = useApp();
   const [showAllHist, setShowAllHist] = useState(false);
   const [showAllPol, setShowAllPol] = useState(false);
 
@@ -61,6 +61,7 @@ export default function MyPage() {
   const handleReset = async () => {
     try { await Api.logout(); } catch { /* ignore */ }
     setProfile({ job: null, age: null, income: null, region: null, housing: null, interests: [], extra: {} });
+    setNickname('');
     setPoints(() => 0);
     setHistory(() => []);
     setUnlocked(() => new Set());
@@ -83,7 +84,7 @@ export default function MyPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
               <div style={{ width: 56, height: 56, borderRadius: 18, flexShrink: 0, background: cl.color + '1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>{cl.emoji}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--ink)' }}>회원님</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--ink)' }}>{nickname || '회원'}님</div>
                 <div style={{ fontSize: 12.5, fontWeight: 700, color: cl.color, marginTop: 2 }}>{cl.name} · 유사도 {Math.round(cl.similarity * 100)}%</div>
               </div>
             </div>
